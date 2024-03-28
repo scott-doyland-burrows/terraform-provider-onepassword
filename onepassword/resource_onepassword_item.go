@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/1Password/connect-sdk-go/onepassword"
@@ -364,7 +365,14 @@ func itemToData(item *onepassword.Item, data *schema.ResourceData) error {
 		}
 	}
 
-	data.Set("tags", item.Tags)
+	// Create a copy of the tags slice to avoid modifying the original slice
+	sortedTags := make([]string, len(item.Tags))
+	copy(sortedTags, item.Tags)
+
+	// Sort and set the tags in alphabetical order
+	sort.Strings(sortedTags)
+	data.Set("tags", sortedTags)
+
 	data.Set("category", strings.ToLower(string(item.Category)))
 
 	dataSections := data.Get("section").([]interface{})
